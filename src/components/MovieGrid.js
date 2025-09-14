@@ -1,4 +1,3 @@
-// components/MovieGrid.js
 'use client'
 
 import MovieCard from './MovieCard'
@@ -7,74 +6,69 @@ import SkeletonCard from './SkeletonCard'
 import { useMovies } from '../hooks/useMovies'
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
 
-export default function MovieGrid({ initialMovies, totalPages }) {
+export default function MovieGrid({ initialMovies, totalPages, apiEndpoint }) {
   const {
-    movies,
+    items,
     loading,
     error,
     hasMore,
-    loadMoreMovies,
+    loadMore,
     retry,
-  } = useMovies(initialMovies, totalPages)
+  } = useMovies(initialMovies, totalPages, apiEndpoint)
   
-  const lastElementRef = useIntersectionObserver(loadMoreMovies, {
+  const lastItemRef = useIntersectionObserver(loadMore, {
     threshold: 0.1,
-    rootMargin: '200px'
+    rootMargin: '200px',
   })
+
+  // Determine media type for child cards
+  const mediaType = apiEndpoint === '/api/movies' ? 'movie' : 'series'
 
   return (
     <div className="space-y-8">
-      {/* Movies Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4">
-        {movies.map((movie, index) => {
-          const isLast = index === movies.length - 1
-          
+        {items.map((item, idx) => {
+          const isLast = idx === items.length - 1
           return (
-            <div
-              key={`${movie.id}-${index}`}
-              ref={isLast && hasMore && !loading ? lastElementRef : null}
+            <div 
+              key={`${mediaType}-${item.id}`}
+              ref={isLast && hasMore && !loading ? lastItemRef : null}
             >
-              <MovieCard movie={movie} />
+              <MovieCard movie={item} mediaType={mediaType} />
             </div>
           )
         })}
         
-        {/* Show skeleton cards while loading */}
         {loading && (
           <>
-            {Array.from({ length: 6 }, (_, index) => (
-              <SkeletonCard key={`skeleton-${index}`} />
+            {Array.from({ length: 6 }).map((_, idx) => (
+              <SkeletonCard key={`skel-${idx}`} />
             ))}
           </>
         )}
       </div>
 
-      {/* Loading Spinner */}
       {loading && (
         <div className="flex justify-center">
           <LoadingSpinner />
         </div>
       )}
 
-      {/* Error Message */}
       {error && (
         <div className="text-center py-8">
           <p className="text-red-400 mb-4">{error}</p>
           <button
             onClick={retry}
-            className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="px-5 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
           >
-            Try Again
+            Retry
           </button>
         </div>
       )}
 
-      {/* End Message */}
-      {!hasMore && movies.length > 0 && !loading && (
-        <div className="text-center py-8">
-          <p className="text-gray-400 text-lg">
-            🎬 Youve seen all the movies!
-          </p>
+      {!hasMore && items.length > 0 && !loading && (
+        <div className="text-center py-8 text-gray-400 text-lg">
+          🎬 You've seen all the {mediaType === 'movie' ? 'movies' : 'TV series'}!
         </div>
       )}
     </div>

@@ -1,41 +1,45 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import MovieGrid from '../components/MovieGrid'
-import LoadingSpinner from '../components/LoadingSpinner'
+import { useState } from 'react'
+import Header from '../components/Header'
+import MediaGrid from '../components/MediaGrid'
 
 export default function HomePage() {
-  const [movies, setMovies] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [totalPages, setTotalPages] = useState(0)
-
-  useEffect(() => {
-    fetch('/api/movies?page=1')
-      .then(res => res.json())
-      .then(data => {
-        setMovies(data.results)
-        setTotalPages(data.total_pages)
-      })
-      .catch(() => {
-        setMovies([])
-      })
-      .finally(() => setLoading(false))
-  }, [])
-
-  if (loading) return <LoadingSpinner />
+  const [activeTab, setActiveTab] = useState('movies')
 
   return (
-    <main className="min-h-screen bg-slate-900 text-white">
-      <header className="text-center py-8 px-4">
-        <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-          Popular Movies
+    <>
+      <Header />
+      <main className="min-h-screen bg-slate-900 text-white px-4">
+        <h1 className="text-center text-4xl font-bold py-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+          Popular {activeTab === 'movies' ? 'Movies' : 'TV Series'}
         </h1>
-        <p className="text-xl text-gray-300">
-          Discover trending movies with infinite scroll
-        </p>
-      </header>
 
-      <MovieGrid initialMovies={movies} totalPages={totalPages} />
-    </main>
+        <div className="text-center space-x-6 mb-6">
+          <button
+            onClick={() => setActiveTab('movies')}
+            className={`px-4 py-2 font-semibold rounded ${
+              activeTab === 'movies'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            Movies
+          </button>
+          <button
+            onClick={() => setActiveTab('series')}
+            className={`px-4 py-2 font-semibold rounded ${
+              activeTab === 'series'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            TV Series
+          </button>
+        </div>
+
+        <MediaGrid apiEndpoint={activeTab === 'movies' ? '/api/movies' : '/api/series'} />
+      </main>
+    </>
   )
 }
