@@ -24,3 +24,12 @@ body {
   color: var(--foreground);
   font-family: 'Oswald', sans-serif;
 }
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

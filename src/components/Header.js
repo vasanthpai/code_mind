@@ -13,7 +13,7 @@ export default function Header() {
 
         {/* Navigation Menu */}
         <nav className="space-x-6 hidden md:flex">
-          <Link href="/shows" className="hover:text-gray-700">Shows</Link>
+          <Link href="/series" className="hover:text-gray-700">Shows</Link>
           <Link href="/movies" className="hover:text-gray-700">Movies</Link>
           <Link href="/genres" className="hover:text-gray-700">Genres</Link>
         </nav>

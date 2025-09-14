@@ -3,7 +3,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
-export default function MovieCard({ movie, mediaType = 'movie' }) {
+export default function MovieCard({ movie, mediaType = 'movies' }) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
 
@@ -18,8 +18,8 @@ export default function MovieCard({ movie, mediaType = 'movie' }) {
   const posterUrl = movie.poster_path
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : '/placeholder-movie.jpg'
-
-  // Build navigation path based on media type
+  console.log(mediaType)
+  // Correct navigation path: singular '/movie/' for movies
   const hrefPath = mediaType === 'movie' ? `/movies/${movie.id}` : `/series/${movie.id}`
 
   return (
