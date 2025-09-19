@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const apiRes = await fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${TMDB_API_KEY}&page=${page}`)
+    const apiRes = await fetch(`https://api.themoviedb.org/3/trending/tv/day?api_key=${TMDB_API_KEY}&page=${page}`)
     if (!apiRes.ok) throw new Error('TMDB API error')
     const data = await apiRes.json()
 

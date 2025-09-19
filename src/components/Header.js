@@ -16,6 +16,7 @@ export default function Header() {
           <Link href="/series" className="hover:text-gray-700">Shows</Link>
           <Link href="/movies" className="hover:text-gray-700">Movies</Link>
           <Link href="/genres" className="hover:text-gray-700">Genres</Link>
+          <Link href="/streaming" className="hover:text-gray-700">Streaming</Link>
         </nav>
 
         {/* Search Input (optional) */}
