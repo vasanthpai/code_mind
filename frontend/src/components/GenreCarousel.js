@@ -21,11 +21,10 @@ export default function GenreCarousel({
 
   const containerRef = useRef(null)
   const scrollTimeoutRef = useRef(null)
-    console.log(apiEndpoint)
+
   useEffect(() => {
     let isMounted = true
     setLoading(true)
-
     fetch(`${apiEndpoint}?page=1`)
       .then((res) => res.json())
       .then((data) => {
@@ -38,7 +37,6 @@ export default function GenreCarousel({
         }
       })
       .catch(() => isMounted && setLoading(false))
-
     return () => {
       isMounted = false
     }
@@ -47,7 +45,6 @@ export default function GenreCarousel({
   const loadNextPage = () => {
     if (loadingNext || loading || page >= totalPages) return
     setLoadingNext(true)
-
     fetch(`${apiEndpoint}?page=${page + 1}`)
       .then((res) => res.json())
       .then((data) => {
@@ -71,29 +68,32 @@ export default function GenreCarousel({
 
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
-
   const updateArrows = () => {
     if (!containerRef.current) return
     const { scrollLeft, scrollWidth, clientWidth } = containerRef.current
     setCanScrollLeft(scrollLeft > 10)
     setCanScrollRight(scrollLeft + clientWidth + 10 < scrollWidth)
   }
-
   const scrollAmount = 450
-
   const scrollLeft = () => {
     containerRef.current?.scrollBy({ left: -scrollAmount, behavior: 'smooth' })
     setTimeout(updateArrows, 500)
   }
-
   const scrollRight = () => {
     containerRef.current?.scrollBy({ left: scrollAmount, behavior: 'smooth' })
     setTimeout(updateArrows, 500)
   }
-
   useEffect(() => {
     updateArrows()
   }, [items])
+
+  // DEDUPLICATE items before rendering
+  const dedupedItems = items.filter(
+    (item, idx, arr) =>
+      arr.findIndex(x =>
+        (mediaType) + '-' + x.id === (mediaType) + '-' + item.id
+      ) === idx
+  )
 
   return (
     <section className={`relative ${className}`}>
@@ -105,7 +105,6 @@ export default function GenreCarousel({
           See All →
         </Link>
       </div>
-
       <div className="relative">
         {canScrollLeft && (
           <button
@@ -116,7 +115,6 @@ export default function GenreCarousel({
             ‹
           </button>
         )}
-
         {canScrollRight && (
           <button
             aria-label="Scroll right"
@@ -126,15 +124,14 @@ export default function GenreCarousel({
             ›
           </button>
         )}
-
         <div
           ref={containerRef}
           onScroll={onScroll}
           className="flex overflow-x-auto scrollbar-none space-x-4 py-2 px-10 scroll-smooth min-h-[300px]"
           style={{ scrollBehavior: 'smooth' }}
         >
-          {items.length > 0 ? (
-            items.map((item) => (
+          {dedupedItems.length > 0 ? (
+            dedupedItems.map((item) => (
               <div
                 key={`${mediaType}-${item.id}`}
                 className="flex-shrink-0 w-40 sm:w-44 md:w-48 lg:w-52"
@@ -145,7 +142,6 @@ export default function GenreCarousel({
           ) : (
             <SkeletonRail count={9} />
           )}
-
           {loadingNext && !loading && <SkeletonRail count={9} />}
         </div>
       </div>

@@ -66,6 +66,14 @@ export default function StreamingList({ type = 'now', region = 'US' }) {
 
   if (loading) return <LoadingSpinner />
 
+  // DEDUPLICATE items before rendering
+  const dedupedItems = items.filter(
+    (item, idx, arr) =>
+      arr.findIndex(x =>
+        (x.media_type) + '-' + x.id === (item.media_type) + '-' + item.id
+      ) === idx
+  )
+
   return (
     <div className="space-y-6">
       {/* Section Title */}
@@ -82,9 +90,9 @@ export default function StreamingList({ type = 'now', region = 'US' }) {
 
       {/* Content List */}
       <div className="space-y-6">
-        {items.length > 0 ? (
-          items.map((item, index) => (
-            <StreamingCard key={`${item.media_type}-${item.id}-${index}`} item={item} />
+        {dedupedItems.length > 0 ? (
+          dedupedItems.map((item, index) => (
+            <StreamingCard key={`${item.media_type}-${item.id}`} item={item} />
           ))
         ) : (
           !loading && (
@@ -106,7 +114,7 @@ export default function StreamingList({ type = 'now', region = 'US' }) {
         </div>
       )}
 
-      {!hasMore && items.length > 0 && (
+      {!hasMore && dedupedItems.length > 0 && (
         <div className="text-center py-8">
           <p className="text-gray-400">No more content to load</p>
         </div>
