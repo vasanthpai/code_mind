@@ -18,9 +18,8 @@ export default function MovieCard({ movie, mediaType = 'movies' }) {
   const posterUrl = movie.poster_path
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : '/placeholder-movie.jpg'
-  console.log(mediaType)
-  // Correct navigation path: singular '/movie/' for movies
-  const hrefPath = mediaType === 'movie' ? `/movies/${movie.id}` : `/series/${movie.id}`
+  // Accepts both singular ('movie') and plural ('movies') mediaType values
+  const hrefPath = mediaType?.toLowerCase().startsWith('movie') ? `/movies/${movie.id}` : `/series/${movie.id}`
 
   return (
     <Link href={hrefPath} className="group block">

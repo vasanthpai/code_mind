@@ -1,48 +1,48 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import MovieCard from './MovieCard'
 import SkeletonGrid from './SkeletonGrid'
+import { useMovies } from '../hooks/useMovies'
+import { useIntersectionObserver } from '../hooks/useIntersectionObserver'
 
 export default function GenreMediaGrid({ initialItems, mediaType, apiEndpoint, totalPages }) {
-  const [items, setItems] = useState(initialItems)
-  const [page, setPage] = useState(1)
-  const [loadingNext, setLoadingNext] = useState(false)
+  const {
+    items,
+    loading,
+    error,
+    hasMore,
+    loadMore,
+    retry,
+  } = useMovies(initialItems, totalPages, apiEndpoint)
 
-  const loadNextPage = () => {
-    if (loadingNext || page >= totalPages) return
-    setLoadingNext(true)
-
-    fetch(`${apiEndpoint}?page=${page + 1}`)
-      .then(res => res.json())
-      .then(data => {
-        setItems(prev => [...prev, ...data.results])
-        setPage(prev => prev + 1)
-      })
-      .finally(() => setLoadingNext(false))
-  }
-
-  // Trigger lazy loading on window scroll near bottom
-  useEffect(() => {
-    function onScroll() {
-      if (
-        window.innerHeight + window.scrollY >=
-        document.body.offsetHeight - 150
-      ) {
-        loadNextPage()
-      }
-    }
-
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [page, loadingNext])
+  const lastItemRef = useIntersectionObserver(loadMore, {
+    threshold: 0.1,
+    rootMargin: '200px',
+  })
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 px-4">
-      {items.map(item => (
-        <MovieCard key={`${mediaType}-${item.id}`} movie={item} mediaType={mediaType} />
-      ))}
-      {loadingNext && <SkeletonGrid count={10} />}
+      {items.map((item, idx) => {
+        const isLast = idx === items.length - 1
+        return (
+          <div key={`${mediaType}-${item.id}`} ref={isLast && hasMore && !loading ? lastItemRef : null}>
+            <MovieCard movie={item} mediaType={mediaType} />
+          </div>
+        )
+      })}
+      {loading && <SkeletonGrid count={10} />}
+
+      {error && (
+        <div className="col-span-full text-center py-8">
+          <p className="text-red-400 mb-4">{error}</p>
+          <button
+            onClick={retry}
+            className="px-5 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+          >
+            Retry
+          </button>
+        </div>
+      )}
     </div>
   )
 }

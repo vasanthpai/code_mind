@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import BackButton from '../../../components/backButton' // 
+import BackButton from '../../../components/BackButton'
 
 export default async function MovieDetail({ params }) {
   const res = await fetch(
